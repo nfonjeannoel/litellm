@@ -44,6 +44,19 @@ services:
       timeout: 5s
       retries: 10
 
+  prometheus:
+    image: prom/prometheus
+    expose:
+      - "9090"
+    command:
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+    volumes:
+      - prometheus_data:/prometheus
+    restart: always
+
 volumes:
+  prometheus_data:
+    driver: local
   postgres_data:
     driver: local
