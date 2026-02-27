@@ -49,6 +49,7 @@ services:
     expose:
       - "9090"
     command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=15d"
     volumes:
