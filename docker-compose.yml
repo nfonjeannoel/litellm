@@ -12,10 +12,10 @@ services:
     # command:
     #  - "--config=/app/config.yaml"
     ##############################################
-    ports:
-      - "4000:4000" # Map the container port to the host, change the host port if necessary
+    expose:
+      - "4000"
     environment:
-      DATABASE_URL: "postgresql://llmproxy:dbpassword9090@db:5432/litellm"
+      DATABASE_URL: "${DATABASE_URL:?Set DATABASE_URL in Coolify env vars}"
       STORE_MODEL_IN_DB: "True" # allows adding models to proxy via UI
     env_file:
       - .env # Load local .env file
@@ -33,17 +33,16 @@ services:
   db:
     image: postgres:16
     restart: always
-    container_name: litellm_db
     environment:
-      POSTGRES_DB: litellm
-      POSTGRES_USER: llmproxy
-      POSTGRES_PASSWORD: dbpassword9090
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${POSTGRES_DB:-litellm}
+      POSTGRES_USER: ${POSTGRES_USER:-llmproxy}
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Coolify env vars}"
+    expose:
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data # Persists Postgres data across container restarts
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d litellm -U llmproxy"]
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB:-litellm} -U ${POSTGRES_USER:-llmproxy}"]
       interval: 1s
       timeout: 5s
       retries: 10
@@ -53,8 +52,8 @@ services:
     volumes:
       - prometheus_data:/prometheus
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
+    expose:
+      - "9090"
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -65,4 +64,4 @@ volumes:
   prometheus_data:
     driver: local
   postgres_data:
-    name: litellm_postgres_data # Named volume for Postgres data persistence
+    driver: local
