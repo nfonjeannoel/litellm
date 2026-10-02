@@ -1,10 +1,8 @@
 services:
   litellm:
-    build:
-      context: .
-      args:
-        target: runtime
-    image: docker.litellm.ai/berriai/litellm:main-stable
+    # Pin the tested upstream release; building the fork kept the gateway on
+    # 1.81.16 despite the moving image tag and ignored null reset updates.
+    image: ghcr.io/berriai/litellm:v1.103.2@sha256:f63fb81b831b170ec16851e23c36ac5bf52ef106b271406429524a2ed730bbfd
     volumes:
       - ./config.yaml:/app/config.yaml
     command:
